@@ -39,3 +39,15 @@ def organize(directory, dry_run=True, mapping=None):
             shutil.move(source, destination)
         moved.append((name, category))
     return moved
+
+
+def load_mapping(path):
+    """Load a JSON extension map formatted as {"Category": [".ext"]}."""
+    import json
+
+    with open(path, encoding="utf-8") as handle:
+        raw = json.load(handle)
+    return {
+        category: {ext.lower() for ext in extensions}
+        for category, extensions in raw.items()
+    }
