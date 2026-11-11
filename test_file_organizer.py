@@ -33,5 +33,22 @@ class OrganizerTests(unittest.TestCase):
             )
 
 
+class MappingTests(unittest.TestCase):
+    def test_load_mapping_normalises_extensions(self):
+        import json
+
+        from organizer import load_mapping, plan_organize
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = os.path.join(directory, "map.json")
+            with open(path, "w", encoding="utf-8") as handle:
+                json.dump({"Design": [".PSD", ".Sketch"]}, handle)
+            mapping = load_mapping(path)
+            self.assertEqual(
+                plan_organize(["hero.psd"], mapping=mapping),
+                [("hero.psd", "Design")],
+            )
+
+
 if __name__ == "__main__":
     unittest.main()
