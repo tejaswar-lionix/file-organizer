@@ -71,6 +71,50 @@ class DuplicateTests(unittest.TestCase):
             self.assertEqual(find_duplicates(directory), {})
 
 
+class UndoTests(unittest.TestCase):
+    def test_undo_restores_organized_files(self):
+        from organizer import undo_moves
+
+        with tempfile.TemporaryDirectory() as directory:
+            for name in ("photo.jpg", "notes.md"):
+                open(os.path.join(directory, name), "w").close()
+            moves = organize(directory, dry_run=False)
+            restored = undo_moves(moves, directory)
+            self.assertEqual(sorted(restored), ["notes.md", "photo.jpg"])
+            self.assertTrue(os.path.exists(os.path.join(directory, "photo.jpg")))
+            self.assertTrue(os.path.exists(os.path.join(directory, "notes.md")))
+
+    def test_undo_skips_missing_source(self):
+        from organizer import undo_moves
+
+        with tempfile.TemporaryDirectory() as directory:
+            self.assertEqual(undo_moves([("gone.jpg", "Images")], directory), [])
+
+    def test_undo_conflict_raises_without_overwrite(self):
+        from organizer import undo_moves
+
+        with tempfile.TemporaryDirectory() as directory:
+            os.makedirs(os.path.join(directory, "Images"))
+            with open(
+                os.path.join(directory, "Images", "photo.jpg"), "w", encoding="utf-8"
+            ) as handle:
+                handle.write("organized")
+            with open(
+                os.path.join(directory, "photo.jpg"), "w", encoding="utf-8"
+            ) as handle:
+                handle.write("existing")
+            with self.assertRaises(FileExistsError):
+                undo_moves([("photo.jpg", "Images")], directory)
+            with open(
+                os.path.join(directory, "photo.jpg"), encoding="utf-8"
+            ) as handle:
+                self.assertEqual(handle.read(), "existing")
+            with open(
+                os.path.join(directory, "Images", "photo.jpg"), encoding="utf-8"
+            ) as handle:
+                self.assertEqual(handle.read(), "organized")
+
+
 class MappingTests(unittest.TestCase):
     def test_load_mapping_normalises_extensions(self):
         import json
