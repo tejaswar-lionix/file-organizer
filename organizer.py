@@ -42,6 +42,20 @@ def organize(directory, dry_run=True, mapping=None):
     return moved
 
 
+def undo_moves(moves, directory):
+    restored = []
+    for name, category in moves:
+        source = os.path.join(directory, category, name)
+        destination = os.path.join(directory, name)
+        if not os.path.exists(source):
+            continue
+        if os.path.exists(destination):
+            raise FileExistsError(destination)
+        shutil.move(source, destination)
+        restored.append(name)
+    return restored
+
+
 def find_duplicates(directory):
     groups = {}
     for name in sorted(os.listdir(directory)):
