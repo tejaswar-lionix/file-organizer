@@ -42,6 +42,19 @@ def organize(directory, dry_run=True, mapping=None):
     return moved
 
 
+def largest_files(directory, limit=10):
+    if limit < 1:
+        raise ValueError("limit must be at least 1")
+    files = []
+    for name in os.listdir(directory):
+        path = os.path.join(directory, name)
+        if not os.path.isfile(path):
+            continue
+        files.append((name, os.path.getsize(path)))
+    files.sort(key=lambda item: (-item[1], item[0]))
+    return files[:limit]
+
+
 def undo_moves(moves, directory):
     restored = []
     for name, category in moves:
