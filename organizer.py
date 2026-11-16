@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Sort files into category folders by extension."""
+import hashlib
 import os
 import shutil
 
@@ -39,6 +40,24 @@ def organize(directory, dry_run=True, mapping=None):
             shutil.move(source, destination)
         moved.append((name, category))
     return moved
+
+
+def find_duplicates(directory):
+    groups = {}
+    for name in sorted(os.listdir(directory)):
+        path = os.path.join(directory, name)
+        if not os.path.isfile(path):
+            continue
+        digest = hashlib.sha256()
+        with open(path, "rb") as handle:
+            for chunk in iter(lambda: handle.read(65536), b""):
+                digest.update(chunk)
+        groups.setdefault(digest.hexdigest(), []).append(name)
+    return {
+        hexdigest: sorted(names)
+        for hexdigest, names in groups.items()
+        if len(names) > 1
+    }
 
 
 def load_mapping(path):

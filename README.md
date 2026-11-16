@@ -6,6 +6,7 @@ Sort files into category folders by extension.
 
 ```bash
 python3 -c "from organizer import *; print(organize('.'))"
+python3 -c "from organizer import *; print(find_duplicates('.'))"
 ```
 
 ## Features
@@ -13,6 +14,7 @@ python3 -c "from organizer import *; print(organize('.'))"
 - Dry-run planning of file moves
 - Move files into Images, Documents, Audio, Video, Archives, Other
 - Custom rules with load_mapping(path)
+- Find identical files with find_duplicates(directory)
 
 ## Tests
 
