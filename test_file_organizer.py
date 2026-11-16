@@ -71,6 +71,51 @@ class DuplicateTests(unittest.TestCase):
             self.assertEqual(find_duplicates(directory), {})
 
 
+class LargestFilesTests(unittest.TestCase):
+    def test_orders_by_size_then_name(self):
+        from organizer import largest_files
+
+        with tempfile.TemporaryDirectory() as directory:
+            for name, size in (("b.txt", 3), ("a.txt", 3), ("c.txt", 5)):
+                with open(os.path.join(directory, name), "w", encoding="utf-8") as handle:
+                    handle.write("x" * size)
+            self.assertEqual(
+                largest_files(directory),
+                [("c.txt", 5), ("a.txt", 3), ("b.txt", 3)],
+            )
+
+    def test_respects_limit(self):
+        from organizer import largest_files
+
+        with tempfile.TemporaryDirectory() as directory:
+            for name, size in (("a.txt", 1), ("b.txt", 2), ("c.txt", 3)):
+                with open(os.path.join(directory, name), "w", encoding="utf-8") as handle:
+                    handle.write("x" * size)
+            self.assertEqual(largest_files(directory, limit=2), [("c.txt", 3), ("b.txt", 2)])
+
+    def test_ignores_directories(self):
+        from organizer import largest_files
+
+        with tempfile.TemporaryDirectory() as directory:
+            os.makedirs(os.path.join(directory, "folder"))
+            with open(os.path.join(directory, "file.txt"), "w", encoding="utf-8") as handle:
+                handle.write("data")
+            self.assertEqual(largest_files(directory), [("file.txt", 4)])
+
+    def test_empty_directory_returns_empty_list(self):
+        from organizer import largest_files
+
+        with tempfile.TemporaryDirectory() as directory:
+            self.assertEqual(largest_files(directory), [])
+
+    def test_limit_below_one_raises(self):
+        from organizer import largest_files
+
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaises(ValueError):
+                largest_files(directory, limit=0)
+
+
 class UndoTests(unittest.TestCase):
     def test_undo_restores_organized_files(self):
         from organizer import undo_moves
