@@ -33,6 +33,44 @@ class OrganizerTests(unittest.TestCase):
             )
 
 
+class DuplicateTests(unittest.TestCase):
+    def test_identical_files_are_grouped(self):
+        from organizer import find_duplicates
+
+        with tempfile.TemporaryDirectory() as directory:
+            for name in ("a.txt", "b.txt"):
+                with open(os.path.join(directory, name), "w", encoding="utf-8") as handle:
+                    handle.write("same content")
+            groups = find_duplicates(directory)
+            self.assertEqual(len(groups), 1)
+            self.assertEqual(list(groups.values()), [["a.txt", "b.txt"]])
+
+    def test_unique_file_is_excluded(self):
+        from organizer import find_duplicates
+
+        with tempfile.TemporaryDirectory() as directory:
+            with open(os.path.join(directory, "only.txt"), "w", encoding="utf-8") as handle:
+                handle.write("unique")
+            self.assertEqual(find_duplicates(directory), {})
+
+    def test_files_are_left_in_place(self):
+        from organizer import find_duplicates
+
+        with tempfile.TemporaryDirectory() as directory:
+            for name in ("a.txt", "b.txt"):
+                with open(os.path.join(directory, name), "w", encoding="utf-8") as handle:
+                    handle.write("same content")
+            find_duplicates(directory)
+            self.assertTrue(os.path.exists(os.path.join(directory, "a.txt")))
+            self.assertTrue(os.path.exists(os.path.join(directory, "b.txt")))
+
+    def test_empty_directory_returns_empty_dict(self):
+        from organizer import find_duplicates
+
+        with tempfile.TemporaryDirectory() as directory:
+            self.assertEqual(find_duplicates(directory), {})
+
+
 class MappingTests(unittest.TestCase):
     def test_load_mapping_normalises_extensions(self):
         import json
