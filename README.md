@@ -9,6 +9,7 @@ python3 -c "from organizer import *; print(organize('.'))"
 python3 -c "from organizer import *; moves=organize('.', dry_run=False); print(undo_moves(moves, '.'))"
 python3 -c "from organizer import *; print(find_duplicates('.'))"
 python3 -c "from organizer import *; print(largest_files('.'))"
+python3 -c "from organizer import *; print(total_size('.'))"
 ```
 
 ## Features
@@ -19,6 +20,7 @@ python3 -c "from organizer import *; print(largest_files('.'))"
 - Custom rules with load_mapping(path)
 - Find identical files with find_duplicates(directory)
 - Rank biggest files with largest_files(directory, limit=10)
+- Sum top-level file sizes with total_size(directory)
 
 ## Tests
 
