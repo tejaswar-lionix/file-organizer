@@ -207,5 +207,21 @@ class MappingTests(unittest.TestCase):
             )
 
 
+class CategorySummaryTests(unittest.TestCase):
+    def test_counts_files_and_bytes_by_category(self):
+        import os
+        import tempfile
+
+        from organizer import category_summary
+
+        with tempfile.TemporaryDirectory() as directory:
+            for name, size in (("a.png", 3), ("b.jpg", 2), ("c.txt", 5)):
+                with open(os.path.join(directory, name), "wb") as handle:
+                    handle.write(b"x" * size)
+            summary = category_summary(directory)
+        self.assertEqual(summary["Images"], {"files": 2, "bytes": 5})
+        self.assertEqual(summary["Documents"], {"files": 1, "bytes": 5})
+
+
 if __name__ == "__main__":
     unittest.main()

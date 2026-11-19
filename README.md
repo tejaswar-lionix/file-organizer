@@ -28,6 +28,10 @@ python3 -c "from organizer import *; print(total_size('.'))"
 python3 -m unittest -q
 ```
 
+## Additional API
+
+- `category_summary(directory)` counts files and total bytes per category.
+
 ## License
 
 MIT

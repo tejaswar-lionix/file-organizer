@@ -107,3 +107,17 @@ def load_mapping(path):
         category: {ext.lower() for ext in extensions}
         for category, extensions in raw.items()
     }
+
+
+def category_summary(directory):
+    """Count files and total bytes per category in a directory."""
+    summary = {}
+    for name in os.listdir(directory):
+        path = os.path.join(directory, name)
+        if not os.path.isfile(path):
+            continue
+        category = category_for(name)
+        entry = summary.setdefault(category, {"files": 0, "bytes": 0})
+        entry["files"] += 1
+        entry["bytes"] += os.path.getsize(path)
+    return summary
