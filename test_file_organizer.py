@@ -116,6 +116,36 @@ class LargestFilesTests(unittest.TestCase):
                 largest_files(directory, limit=0)
 
 
+class TotalSizeTests(unittest.TestCase):
+    def test_sums_top_level_file_sizes(self):
+        from organizer import total_size
+
+        with tempfile.TemporaryDirectory() as directory:
+            for name, size in (("a.txt", 3), ("b.txt", 5)):
+                with open(os.path.join(directory, name), "w", encoding="utf-8") as handle:
+                    handle.write("x" * size)
+            self.assertEqual(total_size(directory), 8)
+
+    def test_ignores_subdirectories(self):
+        from organizer import total_size
+
+        with tempfile.TemporaryDirectory() as directory:
+            os.makedirs(os.path.join(directory, "folder"))
+            with open(
+                os.path.join(directory, "folder", "nested.txt"), "w", encoding="utf-8"
+            ) as handle:
+                handle.write("x" * 10)
+            with open(os.path.join(directory, "file.txt"), "w", encoding="utf-8") as handle:
+                handle.write("data")
+            self.assertEqual(total_size(directory), 4)
+
+    def test_empty_directory_returns_zero(self):
+        from organizer import total_size
+
+        with tempfile.TemporaryDirectory() as directory:
+            self.assertEqual(total_size(directory), 0)
+
+
 class UndoTests(unittest.TestCase):
     def test_undo_restores_organized_files(self):
         from organizer import undo_moves

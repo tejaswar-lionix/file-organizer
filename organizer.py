@@ -55,6 +55,16 @@ def largest_files(directory, limit=10):
     return files[:limit]
 
 
+def total_size(directory):
+    total = 0
+    for name in os.listdir(directory):
+        path = os.path.join(directory, name)
+        if not os.path.isfile(path):
+            continue
+        total += os.path.getsize(path)
+    return total
+
+
 def undo_moves(moves, directory):
     restored = []
     for name, category in moves:
